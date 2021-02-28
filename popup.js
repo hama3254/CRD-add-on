@@ -1,4 +1,6 @@
 var Port;
+var Server = false;
+var FunCookie;
 document.getElementById("btn_add").hidden = true;
 document.getElementById("btn_enable_select").hidden = true;
 document.getElementById("btn_add_mass").hidden = true;
@@ -7,6 +9,7 @@ document.getElementById("btn_select_none").hidden = true;
 document.getElementById("btn_enable_funimation_select").hidden = true;
 document.getElementById("btn_add_funimation").hidden = true;
 document.getElementById("btn_add_AoD").hidden = true;
+document.getElementById("btn_add_mass_funimation").hidden = true;
 //document.getElementById("CRD-Webserver").hidden = true;
 
 function setItem() {
@@ -39,11 +42,12 @@ function gotPort(result) {
 chrome.runtime.onMessage.addListener(getServerValue);
 
 function getServerValue(request, sender, sendResponse) {
-    if (request.Server == "CRD 1.0") {
+    if (request.Server == "CRD 1.0" && Server == false) {
+        Server = true;
         document.getElementById("CRD-Webserver").hidden = false;
         document.getElementById("txtInput").hidden = true;
         document.getElementById("btn_set_port").hidden = true;
-        document.getElementById("txtOutput").style.visibility="hidden";
+        document.getElementById("txtOutput").style.visibility = "hidden";
         chrome.tabs.query({
             active: true,
             currentWindow: true
@@ -64,7 +68,7 @@ function getServerValue(request, sender, sendResponse) {
                     code: 'document.getElementsByClassName("episode").length;'
                 },
                     function (results) {
-
+                    console.log(results);
                     if (results > 0) {
 
                         onExecuted(results);
@@ -154,6 +158,7 @@ document.getElementById('btn_enable_select').addEventListener('click', () => {
     document.getElementById("btn_add").hidden = true;
     document.getElementById("btn_enable_funimation_select").hidden = true;
     document.getElementById("btn_add_funimation").hidden = true;
+
 });
 
 document.getElementById('btn_select_all').addEventListener('click', () => {
@@ -249,36 +254,79 @@ document.getElementById('btn_add').addEventListener('click', () => {
 
 document.getElementById('btn_add_funimation').addEventListener('click', () => {
 
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
+    chrome.tabs.executeScript(null, {
+        code: "document.cookie"
     },
-        function (tabs) {
-        document.getElementById("btn_add_funimation").disabled = true;
-        document.getElementById("btn_add_funimation").style.background = "#c9c9c9"
+        function (results) {
 
-            console.log(tabs.length);
-        let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
-        console.log(tab.url);
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = "http://127.0.0.1:" + Port + "/post";
+        if (results !== null) {
 
-        const hiddenField2 = document.createElement('input');
-        hiddenField2.type = 'hidden';
-        hiddenField2.name = "FunimationURL";
-        hiddenField2.value = tab.url;
-        form.appendChild(hiddenField2);
+            chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            },
+                function (tabs) {
+                document.getElementById("btn_add_funimation").disabled = true;
+                document.getElementById("btn_add_funimation").style.background = "#c9c9c9"
 
-        document.body.appendChild(form);
-        form.submit();
-        setTimeout(function () {
-            document.getElementById("btn_add_funimation").style.background = "#ff8000"
-        }, 10000);
-        setTimeout(function () {
-            document.getElementById("btn_add_funimation").disabled = false;
-        }, 10000);
+                    console.log(tabs.length);
+                let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
+                console.log(tab.url);
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "http://127.0.0.1:" + Port + "/post", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("FunimationURL=" + tab.url + "&FunimationCookie=" + results);
+                setTimeout(function () {
+                    document.getElementById("btn_add_funimation").style.background = "#ff8000"
+                }, 10000);
+                setTimeout(function () {
+                    document.getElementById("btn_add_funimation").disabled = false;
+                }, 10000);
+            });
+
+        } else {
+            add_mass_error(results);
+
+        }
+
     });
+
+});
+
+document.getElementById('btn_add_mass_funimation').addEventListener('click', () => {
+
+    chrome.tabs.executeScript(null, {
+        code: 'var i,URLList="";for(i=0;i<document.getElementsByClassName("CRD-Selected").length;i++)URLList+=document.getElementsByClassName("CRD-Selected")[i].getAttribute("href");URLList;'
+    },
+        function (results) {
+
+        if (results !== null) {
+
+            document.getElementById("btn_add_mass_funimation").disabled = true;
+            document.getElementById("btn_add_mass_funimation").style.background = "#c9c9c9"
+
+                var postdata = results + "&FunimationCookie=" + FunCookie
+
+                var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "http://127.0.0.1:" + Port + "/post", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("FunimationMass=" + postdata);
+
+            setTimeout(function () {
+                document.getElementById("btn_add_mass_funimation").style.background = "#ff8000"
+            }, 4000);
+            setTimeout(function () {
+                document.getElementById("btn_add_mass_funimation").disabled = false;
+            }, 4000);
+
+        } else {
+            add_mass_error(results);
+
+        }
+
+    });
+
 });
 
 document.getElementById('btn_add_mass').addEventListener('click', () => {
@@ -380,12 +428,14 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
         code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject_funimation.js",document.head.appendChild(script);'
     });
 
-    document.getElementById("btn_add_mass").hidden = false;
+    document.getElementById("btn_add_mass").hidden = true;
     document.getElementById("btn_select_all").hidden = false;
     document.getElementById("btn_select_none").hidden = false;
     document.getElementById("btn_enable_select").hidden = true;
     document.getElementById("btn_add").hidden = true;
     document.getElementById("btn_add_funimation").hidden = true;
+    document.getElementById("btn_enable_funimation_select").hidden = true;
+    document.getElementById("btn_add_mass_funimation").hidden = false;
 
 });
 
@@ -396,13 +446,30 @@ function FunimationSuccess(result) {
         function (result) {
         if (result == 'true') {
             document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_add_mass").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
 
             document.getElementById("btn_enable_funimation_select").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
+            document.getElementById("btn_add_mass_funimation").hidden = false;
+            chrome.tabs.executeScript(null, {
+                code: "document.cookie"
+            },
+                function (results) {
+
+                if (results !== null) {
+
+                    FunCookie = results;
+                    console.log(results);
+                } else {
+                    add_mass_error(results);
+
+                }
+
+            });
+
             console.log(true);
         } else {
             document.getElementById("btn_add").hidden = true;
@@ -412,7 +479,22 @@ function FunimationSuccess(result) {
             document.getElementById("btn_select_all").hidden = true;
             document.getElementById("btn_select_none").hidden = true;
             document.getElementById("btn_enable_funimation_select").hidden = false;
+            document.getElementById("btn_add_mass_funimation").hidden = true;
+            chrome.tabs.executeScript(null, {
+                code: "document.cookie"
+            },
+                function (results) {
 
+                if (results !== null) {
+
+                    FunCookie = results.toString();
+                    console.log(results.toString());
+                } else {
+                    add_mass_error(results);
+
+                }
+
+            });
             console.log(false);
         }
     });
@@ -428,5 +510,21 @@ function FunimationError(error) {
     document.getElementById("btn_enable_select").hidden = true;
     document.getElementById("btn_add_funimation").hidden = false;
     document.getElementById("btn_enable_funimation_select").hidden = true;
+
+    chrome.tabs.executeScript(null, {
+        code: "document.cookie"
+    },
+        function (results) {
+
+        if (results !== null) {
+
+            FunCookie = results.toString();
+            console.log(results.toString());
+        } else {
+            add_mass_error(results);
+
+        }
+
+    });
 
 }
