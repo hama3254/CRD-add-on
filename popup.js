@@ -56,12 +56,24 @@ function getServerValue(request, sender, sendResponse) {
             console.log(tabs.length);
             let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
             console.log(tab.url);
-            if (tab.url.includes('crunchyroll.com')) {
-                //var crunchyroll = chrome.tabs.executeScript({
-                //    code: 'document.getElementsByClassName("episode")[0].href;'
-                //});
+            if (tab.url.includes('beta.crunchyroll.com')) {
 
-                //crunchyroll.then(onExecuted, onError);
+                chrome.tabs.executeScript(null, {
+                    //code: 'document.getElementsByClassName("episode")[0].href;'
+                    code: 'document.getElementsByClassName("c-playable-card__link").length;'
+                },
+                    function (results) {
+                    console.log(results);
+                    if (results > 0) {
+
+                        onBetaExecuted(results);
+                    } else {
+                        onError("error")
+                    }
+
+                });
+
+            } else if (tab.url.includes('crunchyroll.com')) {
 
                 chrome.tabs.executeScript(null, {
                     //code: 'document.getElementsByClassName("episode")[0].href;'
@@ -89,7 +101,7 @@ function getServerValue(request, sender, sendResponse) {
                         FunimationSuccess(results);
 
                     } else {
-                        FunimationError(results);
+                        FunimationOldNotFound(results);
 
                     }
 
@@ -143,21 +155,46 @@ document.getElementById('btn_set_port').addEventListener('click', () => {
 
 document.getElementById('btn_enable_select').addEventListener('click', () => {
 
-    chrome.tabs.executeScript(null, {
-        code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject.js",document.head.appendChild(script);'
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    },
+        function (tabs) {
+        console.log(tabs.length);
+        let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
+        console.log(tab.url);
+        if (tab.url.includes('beta.crunchyroll.com')) {
+
+            chrome.tabs.executeScript(null, {
+                file: 'inject_beta.js'
+            });
+
+            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_select_all").hidden = false;
+            document.getElementById("btn_select_none").hidden = false;
+            document.getElementById("btn_enable_select").hidden = true;
+            document.getElementById("btn_add").hidden = true;
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+            document.getElementById("btn_add_funimation").hidden = true;
+        } else if (tab.url.includes('crunchyroll.com')) {
+
+            chrome.tabs.executeScript(null, {
+                code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject.js",document.head.appendChild(script);'
+            });
+
+            //browser.tabs.executeScript({
+            //   code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1' + Port + '/inject.js",document.head.appendChild(script);'
+            //}); //load script from local CRD Server included in https://github.com/hama3254/Crunchyroll-Downloader-v3.0
+
+            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_select_all").hidden = false;
+            document.getElementById("btn_select_none").hidden = false;
+            document.getElementById("btn_enable_select").hidden = true;
+            document.getElementById("btn_add").hidden = true;
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+            document.getElementById("btn_add_funimation").hidden = true;
+        }
     });
-
-    //browser.tabs.executeScript({
-    //   code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1' + Port + '/inject.js",document.head.appendChild(script);'
-    //}); //load script from local CRD Server included in https://github.com/hama3254/Crunchyroll-Downloader-v3.0
-
-    document.getElementById("btn_add_mass").hidden = false;
-    document.getElementById("btn_select_all").hidden = false;
-    document.getElementById("btn_select_none").hidden = false;
-    document.getElementById("btn_enable_select").hidden = true;
-    document.getElementById("btn_add").hidden = true;
-    document.getElementById("btn_enable_funimation_select").hidden = true;
-    document.getElementById("btn_add_funimation").hidden = true;
 
 });
 
@@ -170,7 +207,13 @@ document.getElementById('btn_select_all').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('crunchyroll.com')) {
+        if (tab.url.includes('beta.crunchyroll.com')) {
+
+            chrome.tabs.executeScript(null, {
+                code: 'var i,episodeCount=document.getElementsByClassName("c-playable-card__link").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("c-playable-card__link")[i].style.background="#f78c25",document.getElementsByClassName("c-playable-card__link")[i].style.opacity = "0.5",document.getElementsByClassName("c-playable-card__link")[i].classList.add("CRD-Selected");'
+            });
+
+        } else if (tab.url.includes('crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
                 code: 'var i,episodeCount=document.getElementsByClassName("episode").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode")[i].style.background="#f78c25",document.getElementsByClassName("episode")[i].classList.add("CRD-Selected");'
@@ -180,6 +223,10 @@ document.getElementById('btn_select_all').addEventListener('click', () => {
 
             chrome.tabs.executeScript(null, {
                 code: 'var i,episodeCount=document.getElementsByClassName("fullEpisodeThumbs").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("fullEpisodeThumbs")[i].style.background="#f78c25",document.getElementsByClassName("fullEpisodeThumbs")[i].classList.add("CRD-Selected");'
+            });
+
+            chrome.tabs.executeScript(null, {
+                code: 'var i,episodeCount=document.getElementsByClassName("episode-card").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode-card")[i].style.background="#400099",document.getElementsByClassName("episode-card")[i].classList.add("CRD-Selected"),document.getElementsByClassName("episode-card")[i].style.borderStyle="solid", document.getElementsByClassName("episode-card")[i].style.borderColor="#400099", document.getElementsByClassName("episode-card")[i].style.borderWidth = "10px";'
             });
 
         } else {}
@@ -197,7 +244,13 @@ document.getElementById('btn_select_none').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('crunchyroll.com')) {
+        if (tab.url.includes('beta.crunchyroll.com')) {
+
+            chrome.tabs.executeScript(null, {
+                code: 'var i,episodeCount=document.getElementsByClassName("c-playable-card__link").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("c-playable-card__link")[i].style.background="#000000",document.getElementsByClassName("c-playable-card__link")[i].style.opacity="0",document.getElementsByClassName("c-playable-card__link")[i].classList.remove("CRD-Selected");'
+            });
+
+        } else if (tab.url.includes('crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
                 code: 'var i,episodeCount=document.getElementsByClassName("episode").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode")[i].style.background="#ffffff",document.getElementsByClassName("episode")[i].classList.remove("CRD-Selected");'
@@ -209,18 +262,24 @@ document.getElementById('btn_select_none').addEventListener('click', () => {
                 code: 'var i,episodeCount=document.getElementsByClassName("fullEpisodeThumbs").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("fullEpisodeThumbs")[i].style.background="#ffffff",document.getElementsByClassName("fullEpisodeThumbs")[i].classList.remove("CRD-Selected");'
             });
 
+            chrome.tabs.executeScript(null, {
+                code: 'var i,episodeCount=document.getElementsByClassName("episode-card").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode-card")[i].style.background="#1e1e1e",document.getElementsByClassName("episode-card")[i].classList.remove("CRD-Selected"),document.getElementsByClassName("episode-card")[i].style.borderStyle="none";'
+            });
         } else {}
     });
 
 });
 
 document.getElementById('btn_add').addEventListener('click', () => {
-    chrome.tabs.executeScript(null, {
-        code: "document.getElementsByClassName('no-js')[0].innerHTML;"
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
     },
-        function (results) {
-
-        if (results !== null) {
+        function (tabs) {
+        console.log(tabs.length);
+        let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
+        console.log(tab.url);
+        if (tab.url.includes('beta.crunchyroll.com')) {
 
             document.getElementById("btn_add").disabled = true;
             document.getElementById("btn_add").style.background = "#c9c9c9"
@@ -229,8 +288,8 @@ document.getElementById('btn_add').addEventListener('click', () => {
             form.action = "http://127.0.0.1:" + Port + "/post";
             const hiddenField = document.createElement('input');
             hiddenField.type = 'hidden';
-            hiddenField.name = "HTMLSingle";
-            hiddenField.value = results;
+            hiddenField.name = "HTMLMass";
+            hiddenField.value = tab.url;
             form.appendChild(hiddenField);
 
             document.body.appendChild(form);
@@ -238,16 +297,48 @@ document.getElementById('btn_add').addEventListener('click', () => {
 
             setTimeout(function () {
                 document.getElementById("btn_add").style.background = "#ff8000"
-            }, 10000);
+            }, 4000);
             setTimeout(function () {
                 document.getElementById("btn_add").disabled = false;
-            }, 10000);
+            }, 4000);
 
-        } else {
-            add_one_error(results);
+        } else if (tab.url.includes('crunchyroll.com')) {
+            chrome.tabs.executeScript(null, {
+                code: "document.getElementsByClassName('no-js')[0].innerHTML;"
+            },
+                function (results) {
+
+                if (results !== null) {
+
+                    document.getElementById("btn_add").disabled = true;
+                    document.getElementById("btn_add").style.background = "#c9c9c9"
+                        const form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = "http://127.0.0.1:" + Port + "/post";
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = "HTMLSingle";
+                    hiddenField.value = results;
+                    form.appendChild(hiddenField);
+
+                    document.body.appendChild(form);
+                    form.submit();
+
+                    setTimeout(function () {
+                        document.getElementById("btn_add").style.background = "#ff8000"
+                    }, 10000);
+                    setTimeout(function () {
+                        document.getElementById("btn_add").disabled = false;
+                    }, 10000);
+
+                } else {
+                    add_one_error(results);
+
+                }
+
+            });
 
         }
-
     });
 
 });
@@ -397,6 +488,35 @@ function onExecuted(result) {
 
 }
 
+function onBetaExecuted(result) {
+    chrome.tabs.executeScript(null, {
+        code: "document.getElementsByClassName('c-playable-card__link')[0].href.includes('javascript:');"
+    },
+        function (result) {
+        //alert(result);
+        if (result == 'true') {
+            document.getElementById("btn_add").hidden = true;
+            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_select_all").hidden = false;
+            document.getElementById("btn_select_none").hidden = false;
+            document.getElementById("btn_enable_select").hidden = true;
+            document.getElementById("btn_add_funimation").hidden = true;
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+            console.log(true);
+        } else {
+            document.getElementById("btn_add").hidden = true;
+            document.getElementById("btn_enable_select").hidden = false;
+            document.getElementById("btn_add_mass").hidden = true;
+            document.getElementById("btn_select_all").hidden = true;
+            document.getElementById("btn_select_none").hidden = true;
+            document.getElementById("btn_add_funimation").hidden = true;
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+            console.log(false);
+        }
+    });
+
+}
+
 function onError(error) {
     console.log(`Error: ${error}`);
 
@@ -421,83 +541,119 @@ function add_mass_error(error) {
 
 document.getElementById('btn_enable_funimation_select').addEventListener('click', () => {
 
-    // browser.tabs.executeScript({
-    //     code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject_funimation.js",document.head.appendChild(script);'
-    // }); //load script from local CRD Server included in https://github.com/hama3254/Crunchyroll-Downloader-v3.0
     chrome.tabs.executeScript(null, {
-        code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject_funimation.js",document.head.appendChild(script);'
-    });
-
-    document.getElementById("btn_add_mass").hidden = true;
-    document.getElementById("btn_select_all").hidden = false;
-    document.getElementById("btn_select_none").hidden = false;
-    document.getElementById("btn_enable_select").hidden = true;
-    document.getElementById("btn_add").hidden = true;
-    document.getElementById("btn_add_funimation").hidden = true;
-    document.getElementById("btn_enable_funimation_select").hidden = true;
-    document.getElementById("btn_add_mass_funimation").hidden = false;
-
-});
-
-function FunimationSuccess(result) {
-    chrome.tabs.executeScript(null, {
-        code: "document.getElementsByClassName('trackVideo')[0].href.includes('javascript:');"
+        code: 'document.getElementsByClassName("episode-card")[0].href'
     },
         function (result) {
-        if (result == 'true') {
+        //alert(result);
+        if (result !== null) {
+            chrome.tabs.executeScript(null, {
+                file: 'inject_funimation_new.js'
+            });
+
+            document.getElementById("btn_add_mass").hidden = true;
+            document.getElementById("btn_add_mass_funimation").hidden = false;
+            document.getElementById("btn_select_all").hidden = false;
+            document.getElementById("btn_select_none").hidden = false;
+            document.getElementById("btn_enable_select").hidden = true;
             document.getElementById("btn_add").hidden = true;
+            document.getElementById("btn_add_funimation").hidden = true;
+            document.getElementById("btn_add_AoD").hidden = true;
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+        } else {
+            chrome.tabs.executeScript(null, {
+                code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject_funimation.js",document.head.appendChild(script);'
+            });
+
             document.getElementById("btn_add_mass").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
-
-            document.getElementById("btn_enable_funimation_select").hidden = true;
-            document.getElementById("btn_add_funimation").hidden = true;
-            document.getElementById("btn_add_mass_funimation").hidden = false;
-            chrome.tabs.executeScript(null, {
-                code: "document.cookie"
-            },
-                function (results) {
-
-                if (results !== null) {
-
-                    FunCookie = results;
-                    console.log(results);
-                } else {
-                    add_mass_error(results);
-
-                }
-
-            });
-
-            console.log(true);
-        } else {
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
-            document.getElementById("btn_enable_select").hidden = true;
-            document.getElementById("btn_add_mass").hidden = true;
-            document.getElementById("btn_select_all").hidden = true;
-            document.getElementById("btn_select_none").hidden = true;
-            document.getElementById("btn_enable_funimation_select").hidden = false;
-            document.getElementById("btn_add_mass_funimation").hidden = true;
-            chrome.tabs.executeScript(null, {
-                code: "document.cookie"
-            },
-                function (results) {
+            document.getElementById("btn_enable_funimation_select").hidden = true;
+            document.getElementById("btn_add_mass_funimation").hidden = false;
 
-                if (results !== null) {
-
-                    FunCookie = results.toString();
-                    console.log(results.toString());
-                } else {
-                    add_mass_error(results);
-
-                }
-
-            });
-            console.log(false);
         }
     });
+
+});
+
+function FunimationSuccess(result) {
+ console.log(result[0]);
+  console.log(result[0].includes('javascript:'));
+    if (result[0].includes('javascript:') == true) {
+        document.getElementById("btn_add").hidden = true;
+        document.getElementById("btn_add_mass").hidden = true;
+        document.getElementById("btn_select_all").hidden = false;
+        document.getElementById("btn_select_none").hidden = false;
+        document.getElementById("btn_enable_select").hidden = true;
+
+        document.getElementById("btn_enable_funimation_select").hidden = true;
+        document.getElementById("btn_add_funimation").hidden = true;
+        document.getElementById("btn_add_mass_funimation").hidden = false;
+        chrome.tabs.executeScript(null, {
+            code: "document.cookie"
+        },
+            function (results) {
+
+            if (results !== null) {
+
+                FunCookie = results;
+                console.log(results);
+            } else {
+                add_mass_error(results);
+
+            }
+
+        });
+
+        console.log(true);
+    } else {
+        document.getElementById("btn_add").hidden = true;
+        document.getElementById("btn_add_funimation").hidden = true;
+        document.getElementById("btn_enable_select").hidden = true;
+        document.getElementById("btn_add_mass").hidden = true;
+        document.getElementById("btn_select_all").hidden = true;
+        document.getElementById("btn_select_none").hidden = true;
+        document.getElementById("btn_enable_funimation_select").hidden = false;
+        document.getElementById("btn_add_mass_funimation").hidden = true;
+        chrome.tabs.executeScript(null, {
+            code: "document.cookie"
+        },
+            function (results) {
+
+            if (results !== null) {
+
+                FunCookie = results.toString();
+                console.log(results.toString());
+            } else {
+                add_mass_error(results);
+
+            }
+
+        });
+        console.log(false);
+    }
+}
+
+function FunimationOldNotFound(error) {
+
+    chrome.tabs.executeScript(null, {
+        code: 'document.getElementsByClassName("episode-card")[0].href'
+    },
+        function (results) {
+
+        if (results !== null) {
+            FunimationSuccess(results);
+
+        } else {
+            FunimationError(results);
+
+        }
+
+    });
+
 }
 
 function FunimationError(error) {
