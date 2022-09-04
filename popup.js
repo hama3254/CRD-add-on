@@ -1,14 +1,15 @@
 var Port;
 var Server = false;
 var FunCookie;
+var sclass = "'card'"
 document.getElementById("btn_add").hidden = true;
 document.getElementById("btn_enable_select").hidden = true;
 document.getElementById("btn_add_mass").hidden = true;
+document.getElementById("btn_add_mass_beta").hidden = true;
 document.getElementById("btn_select_all").hidden = true;
 document.getElementById("btn_select_none").hidden = true;
 document.getElementById("btn_enable_funimation_select").hidden = true;
 document.getElementById("btn_add_funimation").hidden = true;
-document.getElementById("btn_add_AoD").hidden = true;
 document.getElementById("btn_add_mass_funimation").hidden = true;
 //document.getElementById("CRD-Webserver").hidden = true;
 
@@ -60,7 +61,7 @@ function getServerValue(request, sender, sendResponse) {
 
                 chrome.tabs.executeScript(null, {
                     //code: 'document.getElementsByClassName("episode")[0].href;'
-                    code: 'document.getElementsByClassName("c-playable-card__link").length;'
+                    code: 'document.getElementsByClassName('+sclass+').length;'
                 },
                     function (results) {
                     console.log(results);
@@ -112,6 +113,7 @@ function getServerValue(request, sender, sendResponse) {
                 document.getElementById("btn_add").hidden = true;
                 document.getElementById("btn_enable_select").hidden = true;
                 document.getElementById("btn_add_mass").hidden = true;
+				document.getElementById("btn_add_mass_beta").hidden = true;
                 document.getElementById("btn_select_all").hidden = true;
                 document.getElementById("btn_select_none").hidden = true;
                 document.getElementById("btn_enable_funimation_select").hidden = true;
@@ -169,7 +171,8 @@ document.getElementById('btn_enable_select').addEventListener('click', () => {
                 file: 'inject_beta.js'
             });
 
-            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -187,6 +190,7 @@ document.getElementById('btn_enable_select').addEventListener('click', () => {
             //}); //load script from local CRD Server included in https://github.com/hama3254/Crunchyroll-Downloader-v3.0
 
             document.getElementById("btn_add_mass").hidden = false;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -210,8 +214,10 @@ document.getElementById('btn_select_all').addEventListener('click', () => {
         if (tab.url.includes('beta.crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
-                code: 'var i,episodeCount=document.getElementsByClassName("c-playable-card__link").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("c-playable-card__link")[i].style.background="#f78c25",document.getElementsByClassName("c-playable-card__link")[i].style.opacity = "0.5",document.getElementsByClassName("c-playable-card__link")[i].classList.add("CRD-Selected");'
+              
+                    code: 'var i,episodeCount=document.getElementsByClassName(' + sclass + ').length;for(i=0;i<episodeCount;i++)document.getElementsByClassName(' + sclass + ')[i].style.background="#f78c25",document.getElementsByClassName(' + sclass + ')[i].style.opacity = "30",document.getElementsByClassName(' + sclass + ')[i].classList.add("CRD-Selected");'
             });
+			document.getElementById("btn_add_mass_beta").hidden = false;
 
         } else if (tab.url.includes('crunchyroll.com')) {
 
@@ -247,7 +253,7 @@ document.getElementById('btn_select_none').addEventListener('click', () => {
         if (tab.url.includes('beta.crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
-                code: 'var i,episodeCount=document.getElementsByClassName("c-playable-card__link").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("c-playable-card__link")[i].style.background="#000000",document.getElementsByClassName("c-playable-card__link")[i].style.opacity="0",document.getElementsByClassName("c-playable-card__link")[i].classList.remove("CRD-Selected");'
+                code: 'var i,episodeCount=document.getElementsByClassName(' + sclass + ').length;for(i=0;i<episodeCount;i++)document.getElementsByClassName(' + sclass + ')[i].style.background="#000000",document.getElementsByClassName(' + sclass + ')[i].style.opacity="100",document.getElementsByClassName(' + sclass + ')[i].classList.remove("CRD-Selected");'
             });
 
         } else if (tab.url.includes('crunchyroll.com')) {
@@ -459,6 +465,45 @@ document.getElementById('btn_add_mass').addEventListener('click', () => {
 
 });
 
+document.getElementById('btn_add_mass_beta').addEventListener('click', () => {
+
+    chrome.tabs.executeScript(null, {
+        code: 'var i,URLList="";for(i=0;i<document.getElementsByClassName("CRD-Selected").length;i++)URLList+=document.getElementsByClassName("CRD-Selected")[i].getAttribute("title");URLList;'
+    },
+        function (results) {
+
+        if (results !== null) {
+
+            document.getElementById("btn_add_mass").disabled = true;
+            document.getElementById("btn_add_mass").style.background = "#c9c9c9"
+                const form = document.createElement('form');
+            form.method = 'post';
+            form.action = "http://127.0.0.1:" + Port + "/post";
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.name = "HTMLMass";
+            hiddenField.value = results;
+            form.appendChild(hiddenField);
+
+            document.body.appendChild(form);
+            form.submit();
+
+            setTimeout(function () {
+                document.getElementById("btn_add_mass_beta").style.background = "#ff8000"
+            }, 4000);
+            setTimeout(function () {
+                document.getElementById("btn_add_mass_beta").disabled = false;
+            }, 4000);
+
+        } else {
+            add_mass_error(results);
+
+        }
+
+    });
+
+});
+
 function onExecuted(result) {
     chrome.tabs.executeScript(null, {
         code: "document.getElementsByClassName('episode')[0].href.includes('javascript:');"
@@ -468,6 +513,7 @@ function onExecuted(result) {
         if (result == 'true') {
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_add_mass").hidden = false;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -478,6 +524,7 @@ function onExecuted(result) {
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_enable_select").hidden = false;
             document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = true;
             document.getElementById("btn_select_none").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
@@ -490,13 +537,15 @@ function onExecuted(result) {
 
 function onBetaExecuted(result) {
     chrome.tabs.executeScript(null, {
-        code: "document.getElementsByClassName('c-playable-card__link')[0].href.includes('javascript:');"
+        code: "document.getElementsByClassName("+sclass+")[0].title.includes('javascript:');"
     },
         function (result) {
         //alert(result);
+		 console.log("title : "+result);
         if (result == 'true') {
             document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_add_mass").hidden = false;
+            document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = false;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -507,6 +556,7 @@ function onBetaExecuted(result) {
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_enable_select").hidden = false;
             document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = true;
             document.getElementById("btn_select_none").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
@@ -552,13 +602,13 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
             });
 
             document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_add_mass_funimation").hidden = false;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
-            document.getElementById("btn_add_AoD").hidden = true;
             document.getElementById("btn_enable_funimation_select").hidden = true;
         } else {
             chrome.tabs.executeScript(null, {
@@ -566,6 +616,7 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
             });
 
             document.getElementById("btn_add_mass").hidden = true;
+			document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -580,8 +631,8 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
 });
 
 function FunimationSuccess(result) {
- console.log(result[0]);
-  console.log(result[0].includes('javascript:'));
+    console.log(result[0]);
+    console.log(result[0].includes('javascript:'));
     if (result[0].includes('javascript:') == true) {
         document.getElementById("btn_add").hidden = true;
         document.getElementById("btn_add_mass").hidden = true;
