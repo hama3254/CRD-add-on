@@ -1,3 +1,6 @@
 
 CRD-add-on-v0.4.zip
 *.bak
+*.zip
+*.xpi
+.web-extension-id

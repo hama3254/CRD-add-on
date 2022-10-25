@@ -2,9 +2,8 @@ var Port;
 var Server = false;
 var FunCookie;
 var sclass = "'card'"
-document.getElementById("btn_add").hidden = true;
+    document.getElementById("btn_add").hidden = true;
 document.getElementById("btn_enable_select").hidden = true;
-document.getElementById("btn_add_mass").hidden = true;
 document.getElementById("btn_add_mass_beta").hidden = true;
 document.getElementById("btn_select_all").hidden = true;
 document.getElementById("btn_select_none").hidden = true;
@@ -57,11 +56,11 @@ function getServerValue(request, sender, sendResponse) {
             console.log(tabs.length);
             let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
             console.log(tab.url);
-            if (tab.url.includes('beta.crunchyroll.com')) {
+            if (tab.url.includes('crunchyroll.com')) {
 
                 chrome.tabs.executeScript(null, {
                     //code: 'document.getElementsByClassName("episode")[0].href;'
-                    code: 'document.getElementsByClassName('+sclass+').length;'
+                    code: 'document.getElementsByClassName(' + sclass + ').length;'
                 },
                     function (results) {
                     console.log(results);
@@ -73,24 +72,6 @@ function getServerValue(request, sender, sendResponse) {
                     }
 
                 });
-
-            } else if (tab.url.includes('crunchyroll.com')) {
-
-                chrome.tabs.executeScript(null, {
-                    //code: 'document.getElementsByClassName("episode")[0].href;'
-                    code: 'document.getElementsByClassName("episode").length;'
-                },
-                    function (results) {
-                    console.log(results);
-                    if (results > 0) {
-
-                        onExecuted(results);
-                    } else {
-                        onError("error")
-                    }
-
-                });
-
             } else if (tab.url.includes('funimation.com')) {
                 chrome.tabs.executeScript(null, {
                     //code: 'document.getElementsByClassName("trackVideo")[0].href'
@@ -112,8 +93,7 @@ function getServerValue(request, sender, sendResponse) {
 
                 document.getElementById("btn_add").hidden = true;
                 document.getElementById("btn_enable_select").hidden = true;
-                document.getElementById("btn_add_mass").hidden = true;
-				document.getElementById("btn_add_mass_beta").hidden = true;
+                document.getElementById("btn_add_mass_beta").hidden = true;
                 document.getElementById("btn_select_all").hidden = true;
                 document.getElementById("btn_select_none").hidden = true;
                 document.getElementById("btn_enable_funimation_select").hidden = true;
@@ -165,32 +145,14 @@ document.getElementById('btn_enable_select').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('beta.crunchyroll.com')) {
+        if (tab.url.includes('crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
                 file: 'inject_beta.js'
             });
 
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = true;
-            document.getElementById("btn_select_all").hidden = false;
-            document.getElementById("btn_select_none").hidden = false;
-            document.getElementById("btn_enable_select").hidden = true;
-            document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_enable_funimation_select").hidden = true;
-            document.getElementById("btn_add_funimation").hidden = true;
-        } else if (tab.url.includes('crunchyroll.com')) {
-
-            chrome.tabs.executeScript(null, {
-                code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject.js",document.head.appendChild(script);'
-            });
-
-            //browser.tabs.executeScript({
-            //   code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1' + Port + '/inject.js",document.head.appendChild(script);'
-            //}); //load script from local CRD Server included in https://github.com/hama3254/Crunchyroll-Downloader-v3.0
-
-            document.getElementById("btn_add_mass").hidden = false;
-			document.getElementById("btn_add_mass_beta").hidden = true;
+           
+            document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -211,19 +173,13 @@ document.getElementById('btn_select_all').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('beta.crunchyroll.com')) {
+        if (tab.url.includes('crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
-              
-                    code: 'var i,episodeCount=document.getElementsByClassName(' + sclass + ').length;for(i=0;i<episodeCount;i++)document.getElementsByClassName(' + sclass + ')[i].style.background="#f78c25",document.getElementsByClassName(' + sclass + ')[i].style.opacity = "30",document.getElementsByClassName(' + sclass + ')[i].classList.add("CRD-Selected");'
-            });
-			document.getElementById("btn_add_mass_beta").hidden = false;
 
-        } else if (tab.url.includes('crunchyroll.com')) {
-
-            chrome.tabs.executeScript(null, {
-                code: 'var i,episodeCount=document.getElementsByClassName("episode").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode")[i].style.background="#f78c25",document.getElementsByClassName("episode")[i].classList.add("CRD-Selected");'
+                code: 'var i,episodeCount=document.getElementsByClassName(' + sclass + ').length;for(i=0;i<episodeCount;i++)document.getElementsByClassName(' + sclass + ')[i].style.background="#f78c25",document.getElementsByClassName(' + sclass + ')[i].style.opacity = "30",document.getElementsByClassName(' + sclass + ')[i].classList.add("CRD-Selected");'
             });
+            document.getElementById("btn_add_mass_beta").hidden = false;
 
         } else if (tab.url.includes('funimation.com')) {
 
@@ -250,16 +206,10 @@ document.getElementById('btn_select_none').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('beta.crunchyroll.com')) {
+        if (tab.url.includes('crunchyroll.com')) {
 
             chrome.tabs.executeScript(null, {
                 code: 'var i,episodeCount=document.getElementsByClassName(' + sclass + ').length;for(i=0;i<episodeCount;i++)document.getElementsByClassName(' + sclass + ')[i].style.background="#000000",document.getElementsByClassName(' + sclass + ')[i].style.opacity="100",document.getElementsByClassName(' + sclass + ')[i].classList.remove("CRD-Selected");'
-            });
-
-        } else if (tab.url.includes('crunchyroll.com')) {
-
-            chrome.tabs.executeScript(null, {
-                code: 'var i,episodeCount=document.getElementsByClassName("episode").length;for(i=0;i<episodeCount;i++)document.getElementsByClassName("episode")[i].style.background="#ffffff",document.getElementsByClassName("episode")[i].classList.remove("CRD-Selected");'
             });
 
         } else if (tab.url.includes('funimation.com')) {
@@ -285,7 +235,7 @@ document.getElementById('btn_add').addEventListener('click', () => {
         console.log(tabs.length);
         let tab = tabs[0]; // Safe to assume there will only be one resultconsole.log(tab.url);
         console.log(tab.url);
-        if (tab.url.includes('beta.crunchyroll.com')) {
+        if (tab.url.includes('crunchyroll.com')) {
 
             document.getElementById("btn_add").disabled = true;
             document.getElementById("btn_add").style.background = "#c9c9c9"
@@ -308,43 +258,7 @@ document.getElementById('btn_add').addEventListener('click', () => {
                 document.getElementById("btn_add").disabled = false;
             }, 4000);
 
-        } else if (tab.url.includes('crunchyroll.com')) {
-            chrome.tabs.executeScript(null, {
-                code: "document.getElementsByClassName('no-js')[0].innerHTML;"
-            },
-                function (results) {
-
-                if (results !== null) {
-
-                    document.getElementById("btn_add").disabled = true;
-                    document.getElementById("btn_add").style.background = "#c9c9c9"
-                        const form = document.createElement('form');
-                    form.method = 'post';
-                    form.action = "http://127.0.0.1:" + Port + "/post";
-                    const hiddenField = document.createElement('input');
-                    hiddenField.type = 'hidden';
-                    hiddenField.name = "HTMLSingle";
-                    hiddenField.value = results;
-                    form.appendChild(hiddenField);
-
-                    document.body.appendChild(form);
-                    form.submit();
-
-                    setTimeout(function () {
-                        document.getElementById("btn_add").style.background = "#ff8000"
-                    }, 10000);
-                    setTimeout(function () {
-                        document.getElementById("btn_add").disabled = false;
-                    }, 10000);
-
-                } else {
-                    add_one_error(results);
-
-                }
-
-            });
-
-        }
+        } 
     });
 
 });
@@ -426,44 +340,7 @@ document.getElementById('btn_add_mass_funimation').addEventListener('click', () 
 
 });
 
-document.getElementById('btn_add_mass').addEventListener('click', () => {
 
-    chrome.tabs.executeScript(null, {
-        code: 'var i,URLList="";for(i=0;i<document.getElementsByClassName("CRD-Selected").length;i++)URLList+=document.getElementsByClassName("CRD-Selected")[i].getAttribute("href");URLList;'
-    },
-        function (results) {
-
-        if (results !== null) {
-
-            document.getElementById("btn_add_mass").disabled = true;
-            document.getElementById("btn_add_mass").style.background = "#c9c9c9"
-                const form = document.createElement('form');
-            form.method = 'post';
-            form.action = "http://127.0.0.1:" + Port + "/post";
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = "HTMLMass";
-            hiddenField.value = results;
-            form.appendChild(hiddenField);
-
-            document.body.appendChild(form);
-            form.submit();
-
-            setTimeout(function () {
-                document.getElementById("btn_add_mass").style.background = "#ff8000"
-            }, 4000);
-            setTimeout(function () {
-                document.getElementById("btn_add_mass").disabled = false;
-            }, 4000);
-
-        } else {
-            add_mass_error(results);
-
-        }
-
-    });
-
-});
 
 document.getElementById('btn_add_mass_beta').addEventListener('click', () => {
 
@@ -474,8 +351,8 @@ document.getElementById('btn_add_mass_beta').addEventListener('click', () => {
 
         if (results !== null) {
 
-            document.getElementById("btn_add_mass").disabled = true;
-            document.getElementById("btn_add_mass").style.background = "#c9c9c9"
+            document.getElementById("btn_add_mass_beta").disabled = true;
+            document.getElementById("btn_add_mass_beta").style.background = "#c9c9c9"
                 const form = document.createElement('form');
             form.method = 'post';
             form.action = "http://127.0.0.1:" + Port + "/post";
@@ -504,48 +381,16 @@ document.getElementById('btn_add_mass_beta').addEventListener('click', () => {
 
 });
 
-function onExecuted(result) {
-    chrome.tabs.executeScript(null, {
-        code: "document.getElementsByClassName('episode')[0].href.includes('javascript:');"
-    },
-        function (result) {
-        //alert(result);
-        if (result == 'true') {
-            document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_add_mass").hidden = false;
-			document.getElementById("btn_add_mass_beta").hidden = true;
-            document.getElementById("btn_select_all").hidden = false;
-            document.getElementById("btn_select_none").hidden = false;
-            document.getElementById("btn_enable_select").hidden = true;
-            document.getElementById("btn_add_funimation").hidden = true;
-            document.getElementById("btn_enable_funimation_select").hidden = true;
-            console.log(true);
-        } else {
-            document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_enable_select").hidden = false;
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = true;
-            document.getElementById("btn_select_all").hidden = true;
-            document.getElementById("btn_select_none").hidden = true;
-            document.getElementById("btn_add_funimation").hidden = true;
-            document.getElementById("btn_enable_funimation_select").hidden = true;
-            console.log(false);
-        }
-    });
-
-}
-
 function onBetaExecuted(result) {
     chrome.tabs.executeScript(null, {
-        code: "document.getElementsByClassName("+sclass+")[0].title.includes('javascript:');"
+        code: "document.getElementsByClassName(" + sclass + ")[0].title.includes('javascript:');"
     },
         function (result) {
         //alert(result);
-		 console.log("title : "+result);
+        console.log("title : " + result);
         if (result == 'true') {
             document.getElementById("btn_add").hidden = true;
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = false;
+            document.getElementById("btn_add_mass_beta").hidden = false;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -555,8 +400,7 @@ function onBetaExecuted(result) {
         } else {
             document.getElementById("btn_add").hidden = true;
             document.getElementById("btn_enable_select").hidden = false;
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = true;
+            document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = true;
             document.getElementById("btn_select_none").hidden = true;
             document.getElementById("btn_add_funimation").hidden = true;
@@ -571,7 +415,6 @@ function onError(error) {
     console.log(`Error: ${error}`);
 
     document.getElementById("btn_add").hidden = false;
-    document.getElementById("btn_add_mass").hidden = true;
     document.getElementById("btn_select_all").hidden = true;
     document.getElementById("btn_select_none").hidden = true;
     document.getElementById("btn_enable_select").hidden = true;
@@ -601,8 +444,7 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
                 file: 'inject_funimation_new.js'
             });
 
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = true;
+            document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_add_mass_funimation").hidden = false;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
@@ -615,8 +457,7 @@ document.getElementById('btn_enable_funimation_select').addEventListener('click'
                 code: 'var script=document.createElement("script");script.type="text/javascript",script.src="http://127.0.0.1:' + Port + '/inject_funimation.js",document.head.appendChild(script);'
             });
 
-            document.getElementById("btn_add_mass").hidden = true;
-			document.getElementById("btn_add_mass_beta").hidden = true;
+            document.getElementById("btn_add_mass_beta").hidden = true;
             document.getElementById("btn_select_all").hidden = false;
             document.getElementById("btn_select_none").hidden = false;
             document.getElementById("btn_enable_select").hidden = true;
@@ -635,7 +476,6 @@ function FunimationSuccess(result) {
     console.log(result[0].includes('javascript:'));
     if (result[0].includes('javascript:') == true) {
         document.getElementById("btn_add").hidden = true;
-        document.getElementById("btn_add_mass").hidden = true;
         document.getElementById("btn_select_all").hidden = false;
         document.getElementById("btn_select_none").hidden = false;
         document.getElementById("btn_enable_select").hidden = true;
@@ -664,7 +504,6 @@ function FunimationSuccess(result) {
         document.getElementById("btn_add").hidden = true;
         document.getElementById("btn_add_funimation").hidden = true;
         document.getElementById("btn_enable_select").hidden = true;
-        document.getElementById("btn_add_mass").hidden = true;
         document.getElementById("btn_select_all").hidden = true;
         document.getElementById("btn_select_none").hidden = true;
         document.getElementById("btn_enable_funimation_select").hidden = false;
@@ -711,7 +550,6 @@ function FunimationError(error) {
     console.log(`Error: ${error}`);
 
     document.getElementById("btn_add").hidden = true;
-    document.getElementById("btn_add_mass").hidden = true;
     document.getElementById("btn_select_all").hidden = true;
     document.getElementById("btn_select_none").hidden = true;
     document.getElementById("btn_enable_select").hidden = true;
